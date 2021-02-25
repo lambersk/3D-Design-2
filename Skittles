@@ -1,0 +1,38 @@
+
+#include <Adafruit_NeoPixel.h>
+ 
+#define NUM_LEDS 12  // This many NeoPixels...
+#define LED_PIN  6  // are connected to this DIGITAL pin #
+
+Adafruit_NeoPixel strip(NUM_LEDS, LED_PIN);
+
+int sensorValue = 0;
+int touchPin = analogRead(A0);
+
+void setup() {
+  strip.begin();
+  strip.show();// Initialize all pixels to 'off'
+  strip.setBrightness(20);
+  pinMode(A0, INPUT); // Enable pull-up resistor on sensor pin
+}
+
+void loop() {
+   int sensorReading = analogRead(A0);
+  if(!digitalRead(sensorReading)) {                 // Sensor exposed to light?
+  colorWipe(strip.Color(  42,   246, 180), 50); // Teal
+  colorWipe(strip.Color(  152,   12, 30), 50); // Pink
+  colorWipe(strip.Color(43, 14, 14), 50); // Maroon
+  } else {                                   // else sensor is dark
+    colorWipe(strip.Color(0, 0, 0), 50);     // Animate off
+  }
+  delay(2);
+}
+ 
+// Fill pixels one after the other with a color
+void colorWipe(uint32_t c, uint8_t wait) {
+  for(uint16_t i=0; i<strip.numPixels(); i++) {
+    strip.setPixelColor(i, c);
+    strip.show();
+    delay(wait);
+  }
+}
