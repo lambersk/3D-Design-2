@@ -1,0 +1,121 @@
+//Buttoncycler Code:
+//Initial state has all pixels off -- press the button once to
+// start the first animation. 
+
+#include <Adafruit_NeoPixel.h>
+#ifdef __AVR__
+ #include <avr/power.h> // Required for 16 MHz Adafruit Trinket
+#endif
+
+
+// On a high -> low transition the button press logic will execute.
+#define BUTTON_PIN   5
+
+#define PIXEL_PIN    6  // Digital IO pin connected to the NeoPixels.
+
+
+#define PIXEL_COUNT 16  // Number of NeoPixels
+
+// Declare our NeoPixel strip object:
+Adafruit_NeoPixel strip(PIXEL_COUNT, PIXEL_PIN, NEO_GRB + NEO_KHZ800);
+// Argument 1 = Number of pixels in NeoPixel strip
+// Argument 2 = Arduino pin number (most are valid)
+// Argument 3 = Pixel type flags, add together as needed:
+//   NEO_KHZ800  800 KHz bitstream (most NeoPixel products w/WS2812 LEDs)
+//   NEO_KHZ400  400 KHz (classic 'v1' (not v2) FLORA pixels, WS2811 drivers)
+//   NEO_GRB     Pixels are wired for GRB bitstream (most NeoPixel products)
+//   NEO_RGB     Pixels are wired for RGB bitstream (v1 FLORA pixels, not v2)
+//   NEO_RGBW    Pixels are wired for RGBW bitstream (NeoPixel RGBW products)
+
+boolean oldState = HIGH;
+int     mode     = 0;    // Currently-active animation mode, 0-9
+
+void setup() {
+  pinMode(BUTTON_PIN, INPUT_PULLUP);
+  strip.begin(); // Initialize NeoPixel strip object (REQUIRED)
+  strip.show();  // Initialize all pixels to 'off'
+}
+
+void loop() {
+  // Get current button state.
+  boolean newState = digitalRead(BUTTON_PIN);
+
+  // Check if state changed from high to low (button press).
+  if((newState == LOW) && (oldState == HIGH)) {
+    // Short delay to debounce button.
+    delay(5);
+    // Check if button is still low after debounce.
+    newState = digitalRead(BUTTON_PIN);
+    if(newState == LOW) {      // Yes, still low
+      if(++mode > 10) mode = 0; // Advance to next mode, wrap around after #8
+      switch(mode) {           // Start the new animation...
+
+         case 1:
+          theaterChase(strip.Color(127, 127, 127), 20); // White
+         case 2:
+          theaterChase(strip.Color(43, 14, 14), 20); // Maroon
+         case 3:
+          theaterChase(strip.Color(127, 127, 127), 20); // White
+         case 4:
+          theaterChase(strip.Color(43, 14, 14), 20); // Maroon
+        case 5:
+          theaterChase(strip.Color(127,   0,   0), 60); // Red
+         case 6:
+          theaterChase(strip.Color(52,   135, 16), 60); // Tree Green
+        case 7:
+          theaterChase(strip.Color(  255,   87, 0), 60); // Orange
+        case 8:
+          theaterChase(strip.Color(  0,   0, 255), 60); // Blue
+        case 9:
+          theaterChase(strip.Color(  132,   0, 197), 60); // Purple
+         case 10:
+          theaterChase(strip.Color(  42,   246, 180), 60); // Teal
+         case 11:
+          theaterChase(strip.Color(  152,   12, 30), 60); // Pink
+         case 12:
+          theaterChase(strip.Color(127, 127, 127), 20); // White
+         case 13:
+          theaterChase(strip.Color(43, 14, 14), 20); // Maroon
+         case 14:
+          theaterChase(strip.Color(127, 127, 127), 20); // White
+         case 15:
+          theaterChase(strip.Color(43, 14, 14), 20); // Maroon
+      }
+    }
+  }
+
+  // Set the last-read button state to the old state.
+  oldState = newState;
+}
+
+// Fill strip pixels one after another with a color. Strip is NOT cleared
+// first; anything there will be covered pixel by pixel. Pass in color
+// (as a single 'packed' 32-bit value, which you can get by calling
+// strip.Color(red, green, blue) as shown in the loop() function above),
+// and a delay time (in milliseconds) between pixels.
+void colorWipe(uint32_t color, int wait) {
+  for(int i=0; i<strip.numPixels(); i++) { // For each pixel in strip...
+    strip.setPixelColor(i, color);         //  Set pixel's color (in RAM)
+    strip.show();                          //  Update strip to match
+    delay(wait);                           //  Pause for a moment
+  }
+}
+
+// Theater-marquee-style chasing lights. Pass in a color (32-bit value,
+// a la strip.Color(r,g,b) as mentioned above), and a delay time (in ms)
+// between frames.
+void theaterChase(uint32_t color, int wait) {
+  for(int a=0; a<20; a++) {  // Repeat 20 times...
+    for(int b=0; b<3; b++) { //  'b' counts from 0 to 2...
+      strip.clear();         //   Set all pixels in RAM to 0 (off)
+      // 'c' counts up from 'b' to end of strip in steps of 3...
+      for(int c=b; c<strip.numPixels(); c += 3) {
+        strip.setPixelColor(c, color); // Set pixel 'c' to value 'color'
+      }
+      strip.show(); // Update strip with new contents
+      delay(wait);  // Pause for a moment
+    }
+  }
+}
+
+
