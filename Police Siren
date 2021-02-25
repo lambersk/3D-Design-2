@@ -1,0 +1,39 @@
+//Reference: https://codebender.cc/sketch:173969#Blinking%20LED%20-%20Adafruit%20Gemma%20with%20NeoPixel.ino
+//By chandra.r.little
+
+#include <Adafruit_NeoPixel.h>
+
+#define PIN 6
+
+#define BRIGHTNESS 50
+
+//single pixel, v2 Flora RGB NeoPixel, so GRB bitsream at 800 khz
+Adafruit_NeoPixel strip = Adafruit_NeoPixel(1, PIN, NEO_GRB + NEO_KHZ800);
+
+
+void setup()
+{
+  strip.begin();
+  strip.show(); //initialize all pixels to off
+  strip.setBrightness(BRIGHTNESS);
+}
+
+void loop()
+{
+  //strip.setPixelColor(0,35,35,35); //blue colour flashes on
+  colorWipe(strip.Color(255,   0,   0)     , 50); // Red
+  strip.show();
+  delay(500);
+ colorWipe(strip.Color(  0,   0, 255)     , 50); // Blue
+ // strip.setPixelColor(0,0,0,0); //red colour flashes on
+  strip.show();
+  delay(700);
+}
+
+void colorWipe(uint32_t color, int wait) {
+  for(int i=0; i<strip.numPixels(); i++) { // For each pixel in strip...
+    strip.setPixelColor(i, color);         //  Set pixel's color (in RAM)
+    strip.show();                          //  Update strip to match
+    delay(wait);                           //  Pause for a moment
+  }
+}
